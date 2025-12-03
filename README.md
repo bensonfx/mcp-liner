@@ -108,6 +108,72 @@ MCP-Liner 是一个 MCP (Model Context Protocol) Server，用于辅助生成和�
 }
 ```
 
+### 9. generate_policy_examples
+生成Policy模板示例和文档
+
+**参数**:
+```json
+{
+  "config_type": "http_forward|sni_forward|socks_forward|web_doh|dns",
+  "policy_type": "geoip|geosite|domain_match|ip_range|file_based|fetch_based|custom"
+}
+```
+
+### 10. generate_redsocks_config
+生成Redsocks透明代理配置（仅限Linux）
+
+**参数**:
+```json
+{
+  "listen": [":12345"],
+  "dialer": "proxy",
+  "dialer_url": "socks5://127.0.0.1:1080",
+  "log": true
+}
+```
+
+### 11. generate_redsocks_iptables
+生成Redsocks iptables规则
+
+**参数**:
+```json
+{
+  "redsocks_port": 12345,
+  "lan_interface": "eth0",
+  "wan_interface": "eth1",
+  "proxy_ports": [80, 443],
+  "exclude_cidrs": ["10.0.0.0/8"],
+  "format": "iptables-save|shell-script"
+}
+```
+
+### 12. generate_sni_config
+生成SNI路由配置
+
+**参数**:
+```json
+{
+  "enabled": true,
+  "policy": "{{ if hasSuffixes \"google.com\" .ServerName }}proxy{{ else }}direct{{ end }}",
+  "dialer": "local",
+  "log": true
+}
+```
+
+### 13. generate_stream_config
+生成Stream转发配置
+
+**参数**:
+```json
+{
+  "listen": [":3389"],
+  "proxy_pass": "192.168.1.100:3389",
+  "dialer": "local",
+  "proxy_protocol": 0,
+  "log": true
+}
+```
+
 ## 安装
 
 > [!NOTE]

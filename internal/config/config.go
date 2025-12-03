@@ -148,15 +148,58 @@ type SocksConfig struct {
 	Forward SocksForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
 }
 
+// SniForwardConfig SNI转发配置
+type SniForwardConfig struct {
+	Policy      string `json:"policy,omitempty" yaml:"policy,omitempty"`
+	Dialer      string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
+	DisableIpv6 bool   `json:"disable_ipv6,omitempty" yaml:"disable_ipv6,omitempty"`
+	PreferIpv6  bool   `json:"prefer_ipv6,omitempty" yaml:"prefer_ipv6,omitempty"`
+	Log         bool   `json:"log,omitempty" yaml:"log,omitempty"`
+}
+
+// SniConfig SNI配置
+type SniConfig struct {
+	Enabled bool             `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	Forward SniForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
+}
+
+// RedsocksForwardConfig Redsocks转发配置
+type RedsocksForwardConfig struct {
+	Dialer string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
+	Log    bool   `json:"log,omitempty" yaml:"log,omitempty"`
+}
+
+// RedsocksConfig Redsocks透明代理配置
+type RedsocksConfig struct {
+	Listen  []string              `json:"listen,omitempty" yaml:"listen,omitempty"`
+	Forward RedsocksForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
+}
+
+// StreamConfig 流转发配置
+type StreamConfig struct {
+	Listen        []string `json:"listen,omitempty" yaml:"listen,omitempty"`
+	Keyfile       string   `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
+	Certfile      string   `json:"certfile,omitempty" yaml:"certfile,omitempty"`
+	ProxyPass     string   `json:"proxy_pass,omitempty" yaml:"proxy_pass,omitempty"`
+	ProxyProtocol uint     `json:"proxy_protocol,omitempty" yaml:"proxy_protocol,omitempty"`
+	DialTimeout   int      `json:"dial_timeout,omitempty" yaml:"dial_timeout,omitempty"`
+	Dialer        string   `json:"dialer,omitempty" yaml:"dialer,omitempty"`
+	SpeedLimit    int64    `json:"speed_limit,omitempty" yaml:"speed_limit,omitempty"`
+	Log           bool     `json:"log,omitempty" yaml:"log,omitempty"`
+}
+
 // Config liner完整配置
 type Config struct {
-	Global GlobalConfig          `json:"global,omitempty" yaml:"global,omitempty"`
-	Dialer map[string]string     `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	Https  []HTTPConfig          `json:"https,omitempty" yaml:"https,omitempty"`
-	Http   []HTTPConfig          `json:"http,omitempty" yaml:"http,omitempty"`
-	Tunnel []TunnelConfig        `json:"tunnel,omitempty" yaml:"tunnel,omitempty"`
-	Dns    []DnsConfig           `json:"dns,omitempty" yaml:"dns,omitempty"`
-	Socks  []SocksConfig         `json:"socks,omitempty" yaml:"socks,omitempty"`
+	Global   GlobalConfig      `json:"global,omitempty" yaml:"global,omitempty"`
+	Dialer   map[string]string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
+	Sni      SniConfig         `json:"sni,omitempty" yaml:"sni,omitempty"`
+	Https    []HTTPConfig      `json:"https,omitempty" yaml:"https,omitempty"`
+	Http     []HTTPConfig      `json:"http,omitempty" yaml:"http,omitempty"`
+	Tunnel   []TunnelConfig    `json:"tunnel,omitempty" yaml:"tunnel,omitempty"`
+	Dns      []DnsConfig       `json:"dns,omitempty" yaml:"dns,omitempty"`
+	Socks    []SocksConfig     `json:"socks,omitempty" yaml:"socks,omitempty"`
+	Redsocks []RedsocksConfig  `json:"redsocks,omitempty" yaml:"redsocks,omitempty"`
+	Stream   []StreamConfig    `json:"stream,omitempty" yaml:"stream,omitempty"`
 }
 
 // NewDefaultGlobalConfig 创建默认全局配置

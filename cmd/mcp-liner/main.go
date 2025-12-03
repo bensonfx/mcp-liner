@@ -126,6 +126,36 @@ func runServer(cmd *cobra.Command, args []string) {
 		Description: "查询 liner 文档和使用说明，支持按主题查询（global, http, tunnel, dns, dialer, policy）",
 	}, wrapToolHandler(tools.QueryLinerDocs))
 
+	// 9. generate_policy_examples - 生成 Policy 模板示例
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_policy_examples",
+		Description: "生成 Policy 模板示例和文档，支持 GeoIP、Geosite、域名匹配、IP范围、文件匹配等多种路由策略",
+	}, wrapToolHandler(tools.GeneratePolicyExamples))
+
+	// 10. generate_redsocks_config - 生成 Redsocks 透明代理配置
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_redsocks_config",
+		Description: "生成 Redsocks 透明代理配置（仅限Linux），支持通过 iptables 重定向 TCP 流量",
+	}, wrapToolHandler(tools.GenerateRedsocksConfig))
+
+	// 11. generate_redsocks_iptables - 生成 Redsocks iptables 规则
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_redsocks_iptables",
+		Description: "生成 Redsocks 透明代理的 iptables 规则，支持 iptables-save 和 shell 脚本两种格式，包含路由循环防护",
+	}, wrapToolHandler(tools.GenerateRedsocksIptables))
+
+	// 12. generate_sni_config - 生成 SNI 路由配置
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_sni_config",
+		Description: "生成 SNI（Server Name Indication）路由配置，支持基于 TLS ClientHello 的流量路由",
+	}, wrapToolHandler(tools.GenerateSniConfig))
+
+	// 13. generate_stream_config - 生成 Stream 转发配置
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_stream_config",
+		Description: "生成 Stream 转发配置，支持 TCP/TLS 端口转发和 PROXY 协议",
+	}, wrapToolHandler(tools.GenerateStreamConfig))
+
 	// 运行服务器
 	log.Info().Msg("mcp server is running, waiting for connections...")
 	if err := server.Run(context.Background(), mcp.NewStdioTransport()); err != nil {

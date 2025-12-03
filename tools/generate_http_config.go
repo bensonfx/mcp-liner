@@ -12,13 +12,14 @@ import (
 
 // GenerateHTTPConfigParams generate_http_config工具的参数
 type GenerateHTTPConfigParams struct {
-	Listen        []string `json:"listen"`         // 监听地址，如 [":443"]
-	ServerName    []string `json:"server_name"`    // 服务器名称，如 ["example.com"]
-	ForwardPolicy string   `json:"forward_policy"` // 转发策略，如 "proxy_pass"
-	Dialer        string   `json:"dialer"`         // 拨号器名称，如 "local"
-	DialerURL     string   `json:"dialer_url"`     // 拨号器URL（如果需要配置dialer）
-	EnableTunnel  bool     `json:"enable_tunnel"`  // 是否启用tunnel功能
-	AuthTable     string   `json:"auth_table"`     // 认证表（tunnel模式使用）
+	Listen         []string `json:"listen"`          // 监听地址，如 [":443"]
+	ServerName     []string `json:"server_name"`     // 服务器名称，如 ["example.com"]
+	ForwardPolicy  string   `json:"forward_policy"`  // 转发策略，如 "proxy_pass"
+	PolicyTemplate string   `json:"policy_template"` // Policy模板（go template），如果提供则覆盖forward_policy
+	Dialer         string   `json:"dialer"`          // 拨号器名称，如 "local"
+	DialerURL      string   `json:"dialer_url"`      // 拨号器URL（如果需要配置dialer）
+	EnableTunnel   bool     `json:"enable_tunnel"`   // 是否启用tunnel功能
+	AuthTable      string   `json:"auth_table"`      // 认证表（tunnel模式使用）
 }
 
 // GenerateHTTPConfig 生成HTTP/HTTPS配置
@@ -52,6 +53,12 @@ func GenerateHTTPConfig(arguments json.RawMessage) (string, error) {
 		params.Dialer = "local"
 	}
 
+	// 如果提供了policy_template，使用它覆盖forward_policy
+	policyValue := params.ForwardPolicy
+	if params.PolicyTemplate != "" {
+		policyValue = params.PolicyTemplate
+	}
+
 	var cfg config.Config
 
 	if params.EnableTunnel {
@@ -68,12 +75,22 @@ func GenerateHTTPConfig(arguments json.RawMessage) (string, error) {
 		)
 	} else {
 		// 生成普通HTTP转发配置
-		cfg = templates.SimpleHTTPForwardConfig(
-			params.Listen,
-			params.ServerName,
-			params.Dialer,
-			params.DialerURL,
-		)
+		httpConfig := templates.HTTPForwardTemplate(params.Listen, params.ServerName, params.Dialer, true)
+		// 设置policy
+		httpConfig.Forward.Policy = policyValue
+
+		cfg = config.Config{
+			Global: config.NewDefaultGlobalConfig(),
+			Dialer: map[string]string{
+				"local": "local",
+			},
+			Https: []config.HTTPConfig{httpConfig},
+		}
+
+		// 如果提供了dialer URL，添加到配置
+		if params.DialerURL != "" && params.Dialer != "local" {
+			cfg.Dialer[params.Dialer] = params.DialerURL
+		}
 	}
 
 	// 转换为YAML
@@ -89,6 +106,9 @@ func GenerateHTTPConfig(arguments json.RawMessage) (string, error) {
 	description := "Generated HTTP/HTTPS configuration"
 	if params.EnableTunnel {
 		description = "Generated HTTP/HTTPS configuration with tunnel support"
+	}
+	if params.PolicyTemplate != "" {
+		description += " with custom policy template"
 	}
 
 	log.Info().Msg("HTTP config generated successfully")
