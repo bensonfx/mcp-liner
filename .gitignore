@@ -32,3 +32,5 @@ go.work.sum
 # .vscode/
 build/
 /liner
+__pycache__
+/mcp_liner

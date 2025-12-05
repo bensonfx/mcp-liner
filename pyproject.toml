@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-liner"
+dynamic = ["version"]
+description = "MCP Server for Liner configuration generation"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Benson Yan", email = "fuxin04@gmail.com" }, # Assuming based on workspace path, user can update
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Go",
+    "Topic :: System :: Systems Administration",
+]
+
+[project.scripts]
+mcp-liner = "mcp_liner:main"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mcp_liner"]
+
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
