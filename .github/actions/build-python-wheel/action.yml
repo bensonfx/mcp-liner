@@ -1,0 +1,74 @@
+name: 'Build Python Wheel'
+description: 'Builds, repairs, and verifies Python wheels'
+inputs:
+  go-version-file:
+    description: 'Path to go.mod file'
+    default: 'go.mod'
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: ${{ inputs.go-version-file }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: Set up Python
+      run: uv python install
+      shell: bash
+
+    - name: Create virtual environment
+      run: uv venv
+      shell: bash
+
+    - name: Activate virtual environment
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          echo "$PWD/.venv/Scripts" >> $GITHUB_PATH
+        else
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+        fi
+
+    - name: Install build dependencies (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        uv pip install auditwheel patchelf
+
+    - name: Build wheel
+      run: uv build --wheel
+      shell: bash
+
+    - name: Repair wheel (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        mkdir -p dist/repaired
+        for whl in dist/*.whl; do
+          auditwheel repair "$whl" -w dist/repaired --plat manylinux_2_35_x86_64
+        done
+        rm dist/*.whl
+        mv dist/repaired/*.whl dist/
+        rm -rf dist/repaired
+
+    - name: List wheels
+      run: ls -lh dist/
+      shell: bash
+
+    - name: Verify wheel
+      shell: bash
+      run: |
+        uv pip install wheel
+        python -m wheel version
+        ls -lh dist/*.whl
+        # Verify that the wheel is NOT pure python (should not contain none-any)
+        if ls dist/*-none-any.whl 1> /dev/null 2>&1; then
+          echo "Error: Wheel is marked as pure python (none-any)!"
+          exit 1
+        fi
+        echo "Wheel tag verification passed: Wheel is platform specific."

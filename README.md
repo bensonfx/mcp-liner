@@ -174,6 +174,21 @@ MCP-Liner 是一个 MCP (Model Context Protocol) Server，用于辅助生成和�
 }
 ```
 
+### 14. generate_webshell_config
+生成Web Shell配置
+
+**参数**:
+```json
+{
+  "listen": [":443"],
+  "server_name": ["shell.example.org"],
+  "command": "login",
+  "home": "/home/user",
+  "auth_table": "auth_user.csv",
+  "location": "/shell/"
+}
+```
+
 ## 安装
 
 > [!NOTE]
@@ -202,6 +217,23 @@ go build -o build/mcp-liner ./cmd/mcp-liner
   }
 }
 ```
+
+#### 方式2：使用 uvx (Python)
+
+如果已安装 [uv](https://github.com/astral-sh/uv)，可以使用 `uvx` 运行（无需手动编译）：
+
+```json
+{
+  "mcpServers": {
+    "mcp-liner": {
+      "command": "uvx",
+      "args": ["mcp-liner"]
+    }
+  }
+}
+```
+
+> 提示：如果是本地开发版本，可以使用 `"args": ["--from", "/path/to/mcp-liner", "mcp-liner"]`
 
 重启Claude Desktop即可使用。
 
@@ -280,6 +312,21 @@ mcp-liner/
 - github.com/phuslu/log v1.0.113
 - github.com/spf13/cobra v1.8.1
 - gopkg.in/yaml.v3 v3.0.1
+
+## CI & Coverage
+
+本项目配置了完整的 GitHub Actions CI 流程：
+- **Lint**: GolangCI-Lint (Go) & Ruff (Python)
+- **Test**: Go Test & Pytest
+- **Build**: 跨平台编译验证
+
+### Coverage 报告
+测试覆盖率报告会自动上传至 [Codecov](https://about.codecov.io/)。
+要查看覆盖率报告：
+1. 确保您的仓库已连接到 Codecov。
+2. 配置 `CODECOV_TOKEN` (如果私有仓库)。
+3. 在 README 顶部添加 Badge：
+   `[![codecov](https://codecov.io/gh/<ORG>/<REPO>/graph/badge.svg?token=<TOKEN>)](https://codecov.io/gh/<ORG>/<REPO>)`
 
 ## 版本
 
