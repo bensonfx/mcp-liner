@@ -21,6 +21,13 @@ classifiers = [
 [project.scripts]
 mcp-liner = "mcp_liner:main"
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+]
+
 [tool.hatch.version]
 source = "vcs"
 
@@ -29,3 +36,38 @@ packages = ["mcp_liner"]
 
 [tool.hatch.build.hooks.custom]
 path = "hatch_build.py"
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["mcp_liner"]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--cov=mcp_liner",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
