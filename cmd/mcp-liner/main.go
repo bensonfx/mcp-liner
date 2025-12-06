@@ -3,10 +3,10 @@
 package main
 
 import (
-	"C"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"sync"
@@ -17,32 +17,17 @@ import (
 	"github.com/phuslu/log"
 	"github.com/spf13/cobra"
 )
-import "io"
 
 const (
-	appName    = "mcp-liner"
-	appVersion = "0.0.0"
+	appName = "mcp-liner"
 )
 
 var (
+	appVersion  = "0.0.0"
 	cancelFunc  context.CancelFunc
 	mu          sync.Mutex
 	stdinReader *os.File
 )
-
-//export Stop
-func Stop() {
-	mu.Lock()
-	defer mu.Unlock()
-	if cancelFunc != nil {
-		cancelFunc()
-	}
-	// 关闭 Pipe Reader 以打断阻塞的 Read 操作
-	// 这不会关闭真实的系统 Stdin
-	if stdinReader != nil {
-		_ = stdinReader.Close()
-	}
-}
 
 var rootCmd = &cobra.Command{
 	Use:     appName,
@@ -230,9 +215,4 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-}
-
-//export RunShared
-func RunShared() {
-	main()
 }

@@ -27,7 +27,18 @@ class CustomBuildHook(BuildHookInterface):
         os.makedirs(output_dir, exist_ok=True)
 
         # Build command
-        build_cmd = ["go", "build", "-buildmode=c-shared", "-o", output_path, cmd_dir]
+        ldflags = f"-s -w -X main.appVersion={version}"
+        build_cmd = [
+            "go",
+            "build",
+            "-trimpath",
+            "-ldflags",
+            ldflags,
+            "-buildmode=c-shared",
+            "-o",
+            output_path,
+            cmd_dir,
+        ]
 
         self.app.display_info(f"Running: {' '.join(build_cmd)}")
 
