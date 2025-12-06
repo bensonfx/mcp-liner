@@ -86,25 +86,60 @@ type HTTPWebDohConfig struct {
 	CacheSize int    `json:"cache_size,omitempty" yaml:"cache_size,omitempty"`
 }
 
+// HTTPWebFastcgiConfig FastCGI配置
+type HTTPWebFastcgiConfig struct {
+	Enabled    bool   `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	Root       string `json:"root,omitempty" yaml:"root,omitempty"`
+	DefaultAPP string `json:"default_app,omitempty" yaml:"default_app,omitempty"`
+}
+
+// HTTPWebDavConfig WebDAV配置
+type HTTPWebDavConfig struct {
+	Enabled   bool   `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	Root      string `json:"root,omitempty" yaml:"root,omitempty"`
+	AuthTable string `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
+}
+
+// HTTPWebShellConfig Web Shell配置
+type HTTPWebShellConfig struct {
+	Enabled   bool              `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	AuthTable string            `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
+	Command   string            `json:"command,omitempty" yaml:"command,omitempty"`
+	Home      string            `json:"home,omitempty" yaml:"home,omitempty"`
+	Template  map[string]string `json:"template,omitempty" yaml:"template,omitempty"`
+}
+
 // HTTPWebConfig Web配置
 type HTTPWebConfig struct {
-	Location      string             `json:"location,omitempty" yaml:"location,omitempty"`
-	TcpCongestion string             `json:"tcp_congestion,omitempty" yaml:"tcp_congestion,omitempty"`
-	Index         HTTPWebIndexConfig `json:"index,omitempty" yaml:"index,omitempty"`
-	Proxy         HTTPWebProxyConfig `json:"proxy,omitempty" yaml:"proxy,omitempty"`
-	Doh           HTTPWebDohConfig   `json:"doh,omitempty" yaml:"doh,omitempty"`
+	Location      string               `json:"location,omitempty" yaml:"location,omitempty"`
+	TcpCongestion string               `json:"tcp_congestion,omitempty" yaml:"tcp_congestion,omitempty"`
+	Fastcgi       HTTPWebFastcgiConfig `json:"fastcgi,omitempty" yaml:"fastcgi,omitempty"`
+	Dav           HTTPWebDavConfig     `json:"dav,omitempty" yaml:"dav,omitempty"`
+	Index         HTTPWebIndexConfig   `json:"index,omitempty" yaml:"index,omitempty"`
+	Proxy         HTTPWebProxyConfig   `json:"proxy,omitempty" yaml:"proxy,omitempty"`
+	Shell         HTTPWebShellConfig   `json:"shell,omitempty" yaml:"shell,omitempty"`
+	Doh           HTTPWebDohConfig     `json:"doh,omitempty" yaml:"doh,omitempty"`
 }
 
 // HTTPConfig HTTP/HTTPS配置
 type HTTPConfig struct {
-	Listen     []string          `json:"listen,omitempty" yaml:"listen,omitempty"`
-	ServerName []string          `json:"server_name,omitempty" yaml:"server_name,omitempty"`
-	Keyfile    string            `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
-	Certfile   string            `json:"certfile,omitempty" yaml:"certfile,omitempty"`
-	PSK        string            `json:"psk,omitempty" yaml:"psk,omitempty"`
-	Forward    HTTPForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
-	Tunnel     HTTPTunnelConfig  `json:"tunnel,omitempty" yaml:"tunnel,omitempty"`
-	Web        []HTTPWebConfig   `json:"web,omitempty" yaml:"web,omitempty"`
+	Listen       []string `json:"listen,omitempty" yaml:"listen,omitempty"`
+	ServerName   []string `json:"server_name,omitempty" yaml:"server_name,omitempty"`
+	Keyfile      string   `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
+	Certfile     string   `json:"certfile,omitempty" yaml:"certfile,omitempty"`
+	PSK          string   `json:"psk,omitempty" yaml:"psk,omitempty"`
+	ServerConfig map[string]struct {
+		Keyfile        string `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
+		Certfile       string `json:"certfile,omitempty" yaml:"certfile,omitempty"`
+		DisableHttp2   bool   `json:"disable_http2,omitempty" yaml:"disable_http2,omitempty"`
+		DisableHttp3   bool   `json:"disable_http3,omitempty" yaml:"disable_http3,omitempty"`
+		DisableTls11   bool   `json:"disable_tls11,omitempty" yaml:"disable_tls11,omitempty"`
+		DisableOcsp    bool   `json:"disable_ocsp,omitempty" yaml:"disable_ocsp,omitempty"`
+		PreferChacha20 bool   `json:"prefer_chacha20,omitempty" yaml:"prefer_chacha20,omitempty"`
+	} `json:"server_config,omitempty" yaml:"server_config,omitempty"`
+	Forward HTTPForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
+	Tunnel  HTTPTunnelConfig  `json:"tunnel,omitempty" yaml:"tunnel,omitempty"`
+	Web     []HTTPWebConfig   `json:"web,omitempty" yaml:"web,omitempty"`
 }
 
 // TunnelConfig 隧道配置

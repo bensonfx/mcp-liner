@@ -156,6 +156,10 @@ func validateHTTPConfig(httpCfg config.HTTPConfig, prefix string, result *Valida
 			})
 		}
 	}
+	// 验证Web配置
+	for j, webCfg := range httpCfg.Web {
+		validateWebConfig(webCfg, fmt.Sprintf("%s.web[%d]", prefix, j), result)
+	}
 }
 
 // validateTunnelConfig 验证隧道配置
@@ -212,6 +216,39 @@ func validateSocksConfig(socksCfg config.SocksConfig, prefix string, result *Val
 			Field:   fmt.Sprintf("%s.listen", prefix),
 			Message: "listen field is required and cannot be empty",
 		})
+	}
+}
+
+// validateWebConfig 验证Web配置
+func validateWebConfig(webCfg config.HTTPWebConfig, prefix string, result *ValidationResult) {
+	// 验证FastCGI配置
+	if webCfg.Fastcgi.Enabled {
+		if webCfg.Fastcgi.Root == "" {
+			result.Errors = append(result.Errors, ValidationError{
+				Field:   fmt.Sprintf("%s.fastcgi.root", prefix),
+				Message: "root is required when fastcgi is enabled",
+			})
+		}
+	}
+
+	// 验证WebDAV配置
+	if webCfg.Dav.Enabled {
+		if webCfg.Dav.Root == "" {
+			result.Errors = append(result.Errors, ValidationError{
+				Field:   fmt.Sprintf("%s.dav.root", prefix),
+				Message: "root is required when dav is enabled",
+			})
+		}
+	}
+
+	// 验证Web Shell配置
+	if webCfg.Shell.Enabled {
+		if webCfg.Shell.Command == "" {
+			result.Errors = append(result.Errors, ValidationError{
+				Field:   fmt.Sprintf("%s.shell.command", prefix),
+				Message: "command is required when shell is enabled",
+			})
+		}
 	}
 }
 

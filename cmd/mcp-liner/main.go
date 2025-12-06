@@ -156,6 +156,12 @@ func runServer(cmd *cobra.Command, args []string) {
 		Description: "生成 Stream 转发配置，支持 TCP/TLS 端口转发和 PROXY 协议",
 	}, wrapToolHandler(tools.GenerateStreamConfig))
 
+	// 14. generate_webshell_config - 生成 Web Shell 配置
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_webshell_config",
+		Description: "生成 Web Shell 配置，支持通过浏览器访问终端，可配置命令和认证",
+	}, wrapToolHandler(tools.GenerateWebshellConfig))
+
 	// 运行服务器
 	log.Info().Msg("mcp server is running, waiting for connections...")
 	if err := server.Run(context.Background(), mcp.NewStdioTransport()); err != nil {
