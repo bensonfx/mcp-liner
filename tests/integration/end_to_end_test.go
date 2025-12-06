@@ -24,7 +24,7 @@ func TestEndToEndWorkflow(t *testing.T) {
 
 	// 测试3：生成DNS配置
 	t.Run("GenerateDNSConfig", func(t *testing.T) {
-	t.Log("测试生成DNS配置")
+		t.Log("测试生成DNS配置")
 		// 这里可以添加实际的测试代码
 		t.Log("✓ DNS配置生成测试通过")
 	})

@@ -109,7 +109,7 @@ func validateGlobal(global *config.GlobalConfig, result *ValidationResult) {
 
 // validateDialers 验证拨号器配置
 func validateDialers(dialers map[string]string, result *ValidationResult) {
-	if dialers == nil || len(dialers) == 0 {
+	if len(dialers) == 0 {
 		return
 	}
 

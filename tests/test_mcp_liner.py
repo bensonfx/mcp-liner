@@ -41,8 +41,9 @@ class TestPackageStructure:
         lib_path = package_dir / lib_name
 
         # Check if the library file exists
-        assert lib_path.exists(), (f"Shared library not found at {lib_path}. "
-                                   "The package may not be properly built.")
+        assert lib_path.exists(), (
+            f"Shared library not found at {lib_path}. The package may not be properly built."
+        )
 
     def test_shared_library_loadable(self):
         """Test that the shared library can be loaded."""
@@ -91,7 +92,9 @@ class TestBuildArtifacts:
         git_dir = project_root / ".git"
         version_file = project_root / "mcp_liner" / "_version.py"
 
-        assert (git_dir.exists() or version_file.exists()), "Neither .git directory nor _version.py found"
+        assert git_dir.exists() or version_file.exists(), (
+            "Neither .git directory nor _version.py found"
+        )
 
     def test_pyproject_toml_exists(self):
         """Test that pyproject.toml exists."""
@@ -126,4 +129,4 @@ class TestGoComponents:
         cmd_dir = project_root / "cmd"
         internal_dir = project_root / "internal"
 
-        assert cmd_dir.exists() or internal_dir.exists(), ("No Go source directories found")
+        assert cmd_dir.exists() or internal_dir.exists(), "No Go source directories found"

@@ -97,6 +97,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -106,11 +108,18 @@ jobs:
       - name: Set up Python
         run: uv python install
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
       - name: Install dependencies
-        run: uv sync --dev
+        run: |
+          uv sync --frozen --extra dev
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - name: Run pytest
-        run: uv run pytest tests/ -v --cov --cov-report=xml
+        run: uv run --frozen pytest tests/ -v --cov --cov-report=xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
@@ -126,10 +135,12 @@ jobs:
     needs: [go-lint, go-fmt, go-test, python-lint, python-test]
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-22.04, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -144,6 +155,18 @@ jobs:
       - name: Set up Python
         run: uv python install
 
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Activate virtual environment
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            echo "$PWD/.venv/Scripts" >> $GITHUB_PATH
+          else
+            echo "$PWD/.venv/bin" >> $GITHUB_PATH
+          fi
+
       - name: Install build dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -152,13 +175,30 @@ jobs:
       - name: Build wheel
         run: uv build --wheel
 
+      - name: Repair wheel (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p dist/repaired
+          for whl in dist/*.whl; do
+            auditwheel repair "$whl" -w dist/repaired --plat manylinux_2_35_x86_64
+          done
+          rm dist/*.whl
+          mv dist/repaired/*.whl dist/
+          rm -rf dist/repaired
+
       - name: List build artifacts
         run: ls -lh dist/
         shell: bash
 
-      - name: Verify wheel (Linux)
-        if: runner.os == 'Linux'
+      - name: Verify wheel
+        shell: bash
         run: |
           uv pip install wheel
           python -m wheel version
           ls -lh dist/*.whl
+          # Verify that the wheel is NOT pure python (should not contain none-any)
+          if ls dist/*-none-any.whl 1> /dev/null 2>&1; then
+            echo "Error: Wheel is marked as pure python (none-any)!"
+            exit 1
+          fi
+          echo "Wheel tag verification passed: Wheel is platform specific."

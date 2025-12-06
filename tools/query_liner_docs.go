@@ -104,7 +104,8 @@ https:
 
 // getTunnelDocs 获取隧道配置文档
 func getTunnelDocs() string {
-	doc := fmt.Sprintf(`Tunnel功能用于实现内网穿透
+	doc := `Tunnel功能用于实现内网穿透
+
 
 服务端配置（公网服务器）:
 https:
@@ -127,7 +128,7 @@ tunnel:
     log: true
 
 使用: ssh -p 10022 user@公网服务器IP
-`)
+`
 	return doc
 }
 
@@ -184,7 +185,7 @@ https:
 
 // getPolicyDocs 获取策略配置文档
 func getPolicyDocs() string {
-	doc := fmt.Sprintf(`Policy是liner的核心特性，使用Go template实现灵活转发
+	doc := `Policy是liner的核心特性，使用Go template实现灵活转发
 
 简单用法:
 forward:
@@ -211,6 +212,6 @@ forward:
 - .Method - HTTP方法
 - .URL - 请求URL
 - .RemoteAddr - 客户端地址
-`)
+`
 	return doc
 }

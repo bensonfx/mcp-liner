@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling", "hatch-vcs", "packaging"]
 build-backend = "hatchling.build"
 
 [project]
@@ -33,6 +33,7 @@ source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["mcp_liner"]
+pure-python = false
 
 [tool.hatch.build.hooks.custom]
 path = "hatch_build.py"

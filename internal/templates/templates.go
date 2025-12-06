@@ -210,20 +210,44 @@ func TunnelScenarioTemplate(role string, params map[string]interface{}) *config.
 
 	if role == "server" {
 		// 服务端配置：在HTTPS上启用tunnel
-		listen := params["listen"].([]string)
-		serverName := params["server_name"].([]string)
-		authTable := params["auth_table"].(string)
-		allowListens := params["allow_listens"].([]string)
+		listen, ok := params["listen"].([]string)
+		if !ok {
+			return cfg
+		}
+		serverName, ok := params["server_name"].([]string)
+		if !ok {
+			return cfg
+		}
+		authTable, ok := params["auth_table"].(string)
+		if !ok {
+			return cfg
+		}
+		allowListens, ok := params["allow_listens"].([]string)
+		if !ok {
+			return cfg
+		}
 
 		cfg.Https = []config.HTTPConfig{
 			TunnelServerTemplate(listen, serverName, authTable, allowListens),
 		}
 	} else if role == "client" {
 		// 客户端配置：配置tunnel连接到服务端
-		remoteListen := params["remote_listen"].([]string)
-		proxyPass := params["proxy_pass"].(string)
-		resolver := params["resolver"].(string)
-		dialer := params["dialer"].(string)
+		remoteListen, ok := params["remote_listen"].([]string)
+		if !ok {
+			return cfg
+		}
+		proxyPass, ok := params["proxy_pass"].(string)
+		if !ok {
+			return cfg
+		}
+		resolver, ok := params["resolver"].(string)
+		if !ok {
+			return cfg
+		}
+		dialer, ok := params["dialer"].(string)
+		if !ok {
+			return cfg
+		}
 
 		// 需要在dialer中配置连接到公网服务器的拨号器
 		if dialerConfig, ok := params["dialer_config"].(string); ok {

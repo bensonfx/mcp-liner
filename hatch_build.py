@@ -1,11 +1,11 @@
 import os
 import subprocess
 import sys
+
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
 class CustomBuildHook(BuildHookInterface):
-
     def initialize(self, version, build_data):
         self.app.display_info("Starting Go build process...")
 
@@ -39,77 +39,40 @@ class CustomBuildHook(BuildHookInterface):
 
         self.app.display_info("Go build completed successfully.")
 
-        # On Linux, repair the shared library with auditwheel for manylinux compatibility
-        if sys.platform.startswith("linux"):
-            self.app.display_info("Detected Linux platform, running auditwheel repair...")
-            self._repair_wheel_linux(output_path, output_dir, lib_name)
+        # self.app.display_info("DEBUG: Entering initialize hook")
 
         # Explicitly include the generated file in the wheel
         # This is necessary because the file might be ignored by default or not tracked
-        if 'force_include' not in build_data:
-            build_data['force_include'] = {}
+        if "force_include" not in build_data:
+            build_data["force_include"] = {}
 
         # Map local path to path in wheel
         # Since it's inside mcp_liner/, we want it in mcp_liner dir in the wheel
-        build_data['force_include'][output_path] = os.path.join("mcp_liner", lib_name)
+        build_data["force_include"][output_path] = os.path.join("mcp_liner", lib_name)
+
+        # Mark as not pure python and set tag explicitly to py3-none-<platform>
+        # This ensures the wheel is platform-specific but python-version agnostic
+        # (since we use ctypes to load the Go shared library)
+        try:
+            from packaging.tags import sys_tags
+
+            # Get the most specific platform tag (first one in the list usually)
+            platform_tag = next(tag.platform for tag in sys_tags())
+
+            # Construct the final tag
+            final_tag = f"py3-none-{platform_tag}"
+
+            build_data["pure_python"] = False
+            build_data["tag"] = final_tag
+
+        except ImportError:
+            self.app.display_warning(
+                "Could not import packaging.tags, falling back to pure_python=False only"
+            )
+            build_data["pure_python"] = False
+            build_data["infer_tag"] = True
 
         # Clean up header file
         header_path = os.path.splitext(output_path)[0] + ".h"
         if os.path.exists(header_path):
             os.remove(header_path)
-
-    def _repair_wheel_linux(self, lib_path, output_dir, lib_name):
-        """
-        Use auditwheel to repair the shared library for manylinux compatibility.
-        This ensures the wheel can be uploaded to PyPI and works across different Linux distributions.
-        """
-        try:
-            # Check if auditwheel is available
-            result = subprocess.run(["auditwheel", "--version"], capture_output=True, text=True, check=False)
-
-            if result.returncode != 0:
-                self.app.display_warning("auditwheel not found. Skipping wheel repair. "
-                                         "Install auditwheel for manylinux compatibility: pip install auditwheel")
-                return
-
-            # Create a temporary directory for repaired libraries
-            repair_dir = os.path.join(output_dir, ".auditwheel_temp")
-            os.makedirs(repair_dir, exist_ok=True)
-
-            # Run auditwheel repair
-            repair_cmd = [
-                "auditwheel",
-                "repair",
-                lib_path,
-                "-w",
-                repair_dir,
-                "--plat",
-                "manylinux2014_x86_64"  # Adjust based on architecture
-            ]
-
-            self.app.display_info(f"Running: {' '.join(repair_cmd)}")
-
-            result = subprocess.run(repair_cmd, capture_output=True, text=True, check=False)
-
-            if result.returncode == 0:
-                self.app.display_info("auditwheel repair completed successfully.")
-
-                # Find the repaired library
-                repaired_files = os.listdir(repair_dir)
-                if repaired_files:
-                    repaired_lib = os.path.join(repair_dir, repaired_files[0])
-                    # Replace the original library with the repaired one
-                    if os.path.exists(repaired_lib):
-                        os.replace(repaired_lib, lib_path)
-                        self.app.display_info(f"Replaced {lib_path} with repaired version.")
-
-                # Clean up temporary directory
-                import shutil
-                shutil.rmtree(repair_dir, ignore_errors=True)
-            else:
-                self.app.display_warning(f"auditwheel repair failed: {result.stderr}\n"
-                                         "Continuing with unrepaired library. This may affect PyPI compatibility.")
-
-        except Exception as e:
-            self.app.display_warning(f"Error during auditwheel repair: {e}\n"
-                                     "Continuing with unrepaired library.")
