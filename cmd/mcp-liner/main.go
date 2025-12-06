@@ -3,21 +3,46 @@
 package main
 
 import (
+	"C"
 	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	"github.com/bensonfx/mcp-liner/tools"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/phuslu/log"
 	"github.com/spf13/cobra"
 )
+import "io"
 
 const (
 	appName    = "mcp-liner"
-	appVersion = "1.0.0"
+	appVersion = "0.0.0"
 )
+
+var (
+	cancelFunc  context.CancelFunc
+	mu          sync.Mutex
+	stdinReader *os.File
+)
+
+//export Stop
+func Stop() {
+	mu.Lock()
+	defer mu.Unlock()
+	if cancelFunc != nil {
+		cancelFunc()
+	}
+	// 关闭 Pipe Reader 以打断阻塞的 Read 操作
+	// 这不会关闭真实的系统 Stdin
+	if stdinReader != nil {
+		_ = stdinReader.Close()
+	}
+}
 
 var rootCmd = &cobra.Command{
 	Use:     appName,
@@ -162,12 +187,42 @@ func runServer(cmd *cobra.Command, args []string) {
 		Description: "生成 Web Shell 配置，支持通过浏览器访问终端，可配置命令和认证",
 	}, wrapToolHandler(tools.GenerateWebshellConfig))
 
-	// 运行服务器
-	log.Info().Msg("mcp server is running, waiting for connections...")
-	if err := server.Run(context.Background(), mcp.NewStdioTransport()); err != nil {
-		log.Error().Err(err).Msg("server error")
+	// 创建一个可以被信号取消的 context
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+
+	// 创建 Pipe 模拟 Stdin
+	r, w, err := os.Pipe()
+	if err != nil {
+		log.Error().Err(err).Msg("failed to create pipe")
 		os.Exit(1)
 	}
+
+	// 启动协程将真实 Stdin 数据复制到 Pipe Writer
+	go func() {
+		defer func() {
+			_ = w.Close() // 显式忽略 Close 的 error
+		}()
+		_, _ = io.Copy(w, os.Stdin)
+	}()
+
+	// 替换 Stdin 为 Pipe Reader
+	os.Stdin = r
+
+	mu.Lock()
+	cancelFunc = cancel
+	stdinReader = r
+	mu.Unlock()
+
+	// 运行服务器
+	log.Info().Msg("mcp server is running, waiting for connections...")
+	if err := server.Run(ctx, mcp.NewStdioTransport()); err != nil {
+		if err != context.Canceled {
+			log.Error().Err(err).Msg("server error")
+			os.Exit(1)
+		}
+	}
+	log.Info().Msg("server stopped gracefully")
 }
 
 func main() {
@@ -175,4 +230,9 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+//export RunShared
+func RunShared() {
+	main()
 }
