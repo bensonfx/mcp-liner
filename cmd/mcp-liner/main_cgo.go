@@ -1,6 +1,9 @@
 package main
 
-import "C"
+import (
+	"C"
+	"unsafe"
+)
 
 //export Stop
 func Stop() {
@@ -9,18 +12,27 @@ func Stop() {
 	if cancelFunc != nil {
 		cancelFunc()
 	}
-	// 关闭 Pipe Reader 以打断阻塞的 Read 操作
-	// 这不会关闭真实的系统 Stdin
-	if stdinReader != nil {
-		_ = stdinReader.Close()
-	}
 }
 
 //export RunShared
-func RunShared() {
-	// 确保在 CGO 环境下的初始化，如果需要的话
-	// 这里直接调用 main 中的 run 逻辑或者复用 main 本身逻辑
-	// 由于 main() 是入口，直接调用 main()
+func RunShared(argc C.int, argv **C.char) {
+	// 将 C 的 argv 转换为 Go 的 string slice
+	length := int(argc)
+	tmpslice := (*[1 << 30]*C.char)(unsafe.Pointer(argv))[:length:length]
+	args := make([]string, length)
+	for i, s := range tmpslice {
+		args[i] = C.GoString(s)
+	}
+
+	// 如果传递了参数，且第一个参数是程序名（通常是），cobra 需要剩下的参数
+	// 但 cobra 的 SetArgs 会完全覆盖 os.Args[1:]。
+	// 如果 args 是 ["mcp-liner", "-v"]，SetArgs 应该只接受 ["-v"]?
+	// cobra.Command.SetArgs: "sets arguments for the command. It is set to os.Args[1:] by default."
+	// 所以如果 args 包括程序名，我们应该传 args[1:]
+	if len(args) > 0 {
+		rootCmd.SetArgs(args[1:])
+	}
+
 	main()
 }
 

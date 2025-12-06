@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"os/signal"
 	"sync"
@@ -23,10 +22,9 @@ const (
 )
 
 var (
-	appVersion  = "0.0.0"
-	cancelFunc  context.CancelFunc
-	mu          sync.Mutex
-	stdinReader *os.File
+	appVersion = "0.0.0"
+	cancelFunc context.CancelFunc
+	mu         sync.Mutex
 )
 
 var rootCmd = &cobra.Command{
@@ -46,6 +44,7 @@ func init() {
 		Writer: &log.ConsoleWriter{
 			ColorOutput:    true,
 			EndWithMessage: true,
+			Writer:         os.Stderr,
 		},
 	}
 }
@@ -176,27 +175,8 @@ func runServer(cmd *cobra.Command, args []string) {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	// 创建 Pipe 模拟 Stdin
-	r, w, err := os.Pipe()
-	if err != nil {
-		log.Error().Err(err).Msg("failed to create pipe")
-		os.Exit(1)
-	}
-
-	// 启动协程将真实 Stdin 数据复制到 Pipe Writer
-	go func() {
-		defer func() {
-			_ = w.Close() // 显式忽略 Close 的 error
-		}()
-		_, _ = io.Copy(w, os.Stdin)
-	}()
-
-	// 替换 Stdin 为 Pipe Reader
-	os.Stdin = r
-
 	mu.Lock()
 	cancelFunc = cancel
-	stdinReader = r
 	mu.Unlock()
 
 	// 运行服务器

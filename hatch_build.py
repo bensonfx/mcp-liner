@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
@@ -8,6 +9,48 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 class CustomBuildHook(BuildHookInterface):
     def initialize(self, version, build_data):
         self.app.display_info("Starting Go build process...")
+
+        # Debugging info
+        self.app.display_info(f"DEBUG: CWD: {os.getcwd()}")
+        self.app.display_info(f"DEBUG: Files: {os.listdir('.')}")
+
+        # Fix: version passed by hatchling might be "standard" which is a placeholder
+        # If so, try to get the real version from git
+        if version == "standard" or not version:
+            try:
+                # git describe --tags --always --dirty
+                # e.g. v0.2.2-1-gXXXX
+                version = (
+                    subprocess.check_output(
+                        ["git", "describe", "--tags", "--always", "--dirty"],
+                        stderr=subprocess.DEVNULL,
+                    )
+                    .decode("utf-8")
+                    .strip()
+                )
+                # Remove leading 'v' if present for consistency
+                if version.startswith("v"):
+                    version = version[1:]
+                self.app.display_info(f"Retrieved version from git: {version}")
+            except Exception as e:
+                self.app.display_warning(f"Could not retrieve version from git: {e}")
+
+                # If git fails (e.g. building from sdist without .git), try PKG-INFO
+                try:
+                    pkg_info = Path("PKG-INFO")
+                    if pkg_info.exists():
+                        with pkg_info.open(mode="r", encoding="utf-8") as f:
+                            for line in f:
+                                if line.startswith("Version: "):
+                                    version = line.split(":", 1)[1].strip()
+                                    self.app.display_info(
+                                        f"Retrieved version from PKG-INFO: {version}"
+                                    )
+                                    break
+                except Exception as pkg_e:
+                    self.app.display_warning(f"Could not retrieve version from PKG-INFO: {pkg_e}")
+
+                # Keep "standard" or whatever it was as a last resort if both fail
 
         # Define input and output paths
         cmd_dir = "./cmd/mcp-liner"

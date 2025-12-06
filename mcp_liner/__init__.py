@@ -44,8 +44,16 @@ def main():
         # Load the shared library
         lib = ctypes.CDLL(lib_path)
 
+        # Config RunShared signature
+        lib.RunShared.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_char_p)]
+
+        # Prepare arguments
+        argv_list = [arg.encode("utf-8") for arg in sys.argv]
+        argv_c = (ctypes.c_char_p * len(argv_list))(*argv_list)
+        argc = len(argv_list)
+
         # Run RunShared in a separate thread because it blocks
-        t = threading.Thread(target=lib.RunShared)
+        t = threading.Thread(target=lib.RunShared, args=(argc, argv_c))
         t.start()
 
         # Main thread waits and handles signals
