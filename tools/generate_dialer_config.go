@@ -59,7 +59,12 @@ func GenerateDialerConfig(arguments json.RawMessage) (string, error) {
 	var dialerURL string
 	switch params.Type {
 	case "local":
-		dialerURL = "local"
+		// 本地 dialer 格式必须为 local:// 或 local://interface（如 local://wg0）
+		if params.Address != "" {
+			dialerURL = fmt.Sprintf("local://%s", params.Address)
+		} else {
+			dialerURL = "local://"
+		}
 	case "socks5":
 		dialerURL = fmt.Sprintf("socks5://%s", params.Address)
 	case "http2":

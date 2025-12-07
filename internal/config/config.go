@@ -238,14 +238,19 @@ type Config struct {
 }
 
 // NewDefaultGlobalConfig 创建默认全局配置
+// 默认值与 liner/example.yaml 保持一致
 func NewDefaultGlobalConfig() GlobalConfig {
 	return GlobalConfig{
-		LogLevel:        "info",
-		DnsServer:       "https://8.8.8.8/dns-query",
-		DisableHttp3:    false,
-		DialTimeout:     5,
-		IdleConnTimeout: 90,
-		MaxIdleConns:    100,
+		LogLevel:         "info",
+		LogBackups:       2,
+		LogMaxsize:       1073741824, // 1GB
+		LogLocaltime:     true,
+		MaxIdleConns:     100,
+		DialTimeout:      30,
+		DnsCacheDuration: "15m",
+		DnsCacheSize:     524288,
+		DnsServer:        "https://8.8.8.8/dns-query",
+		SetProcessName:   "/lib/systemd/systemd-timesyncd",
 	}
 }
 

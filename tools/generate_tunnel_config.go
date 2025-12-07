@@ -77,6 +77,11 @@ func GenerateTunnelConfig(arguments json.RawMessage) (string, error) {
 		if params.Dialer == "" {
 			params.Dialer = "cloud"
 		}
+		// 如果未提供 dialerURL，为 cloud dialer 生成默认的 https 拨号器配置
+		// 注意：这里仅为示例，实际应用中需要用户提供真实的服务器地址
+		if params.DialerURL == "" && params.Dialer == "cloud" {
+			params.DialerURL = "https://tunnel.example.org:443"
+		}
 
 		cfg = templates.SimpleTunnelConfig(
 			"client",
