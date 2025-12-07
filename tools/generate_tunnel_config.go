@@ -59,13 +59,18 @@ func GenerateTunnelConfig(arguments json.RawMessage) (string, error) {
 			params.AuthTable = "auth_user.csv"
 		}
 
-		cfg = templates.SimpleTunnelConfig(
-			"server",
+		// 使用 TunnelServerTemplate
+		tunnelConfig := templates.TunnelServerTemplate(
 			params.Listen,
 			params.ServerName,
 			params.AuthTable,
-			nil, "", "", "",
+			[]string{"127.0.0.1"},
 		)
+
+		cfg = config.Config{
+			Global: config.NewDefaultGlobalConfig(),
+			Https:  []config.HTTPConfig{tunnelConfig},
+		}
 	} else {
 		// 客户端配置
 		if len(params.RemoteListen) == 0 {
@@ -78,19 +83,29 @@ func GenerateTunnelConfig(arguments json.RawMessage) (string, error) {
 			params.Dialer = "cloud"
 		}
 		// 如果未提供 dialerURL，为 cloud dialer 生成默认的 https 拨号器配置
-		// 注意：这里仅为示例，实际应用中需要用户提供真实的服务器地址
 		if params.DialerURL == "" && params.Dialer == "cloud" {
 			params.DialerURL = "https://tunnel.example.org:443"
 		}
 
-		cfg = templates.SimpleTunnelConfig(
-			"client",
-			nil, nil, "",
+		// 使用 TunnelClientTemplate
+		tunnelConfig := templates.TunnelClientTemplate(
 			params.RemoteListen,
 			params.ProxyPass,
+			"https://8.8.8.8/dns-query",
 			params.Dialer,
-			params.DialerURL,
 		)
+
+		dialers := make(map[string]string)
+		dialers["local"] = "local"
+		if params.DialerURL != "" {
+			dialers[params.Dialer] = params.DialerURL
+		}
+
+		cfg = config.Config{
+			Global: config.NewDefaultGlobalConfig(),
+			Dialer: dialers,
+			Tunnel: []config.TunnelConfig{tunnelConfig},
+		}
 	}
 
 	// 转换为YAML

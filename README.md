@@ -9,6 +9,55 @@ MCP-Liner 是一个 MCP (Model Context Protocol) Server，用于辅助生成和�
 - 📚 **内置文档** - 提供完整的liner使用文档查询
 - 🔧 **灵活定制** - 支持自定义拨号器、转发策略等
 
+
+## 安装与配置
+
+> [!NOTE]
+> **MCP服务器通过stdin/stdout通信**
+> 可以直接运行测试（会等待JSON-RPC输入），但正常使用应通过Claude Desktop或其他MCP客户端调用。
+
+### 1. 编译
+```bash
+cd /Users/benson/workspace/liner/mcp-liner
+go build -o build/mcp-liner ./cmd/mcp-liner
+```
+
+### 2. 配置Claude Desktop
+
+编辑 `claude_desktop_config.json` 文件：
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+添加以下配置：
+```json
+{
+  "mcpServers": {
+    "mcp-liner": {
+      "command": "/path/to/your/mcp-liner"
+    }
+  }
+}
+```
+
+#### 方式2：使用 uvx (Python)
+
+如果已安装 [uv](https://github.com/astral-sh/uv)，可以使用 `uvx` 运行（无需手动编译）：
+
+```json
+{
+  "mcpServers": {
+    "mcp-liner": {
+      "command": "uvx",
+      "args": ["mcp-liner"]
+    }
+  }
+}
+```
+
+> 提示：如果是本地开发版本，可以使用 `"args": ["--from", "/path/to/mcp-liner", "mcp-liner"]`
+
+重启Claude Desktop即可使用。
+
 ## MCP工具列表
 
 ### 1. generate_liner_config
@@ -189,53 +238,6 @@ MCP-Liner 是一个 MCP (Model Context Protocol) Server，用于辅助生成和�
 }
 ```
 
-## 安装
-
-> [!NOTE]
-> **MCP服务器通过stdin/stdout通信**
-> 可以直接运行测试（会等待JSON-RPC输入），但正常使用应通过Claude Desktop或其他MCP客户端调用。
-
-### 编译
-```bash
-cd /Users/benson/workspace/liner/mcp-liner
-go build -o build/mcp-liner ./cmd/mcp-liner
-```
-
-### 配置Claude Desktop
-
-编辑 `claude_desktop_config.json` 文件：
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-添加以下配置：
-```json
-{
-  "mcpServers": {
-    "mcp-liner": {
-      "command": "/path/to/your/mcp-liner"
-    }
-  }
-}
-```
-
-#### 方式2：使用 uvx (Python)
-
-如果已安装 [uv](https://github.com/astral-sh/uv)，可以使用 `uvx` 运行（无需手动编译）：
-
-```json
-{
-  "mcpServers": {
-    "mcp-liner": {
-      "command": "uvx",
-      "args": ["mcp-liner"]
-    }
-  }
-}
-```
-
-> 提示：如果是本地开发版本，可以使用 `"args": ["--from", "/path/to/mcp-liner", "mcp-liner"]`
-
-重启Claude Desktop即可使用。
 
 ## 使用示例
 

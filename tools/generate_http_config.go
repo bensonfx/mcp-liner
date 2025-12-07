@@ -43,8 +43,11 @@ func GenerateHTTPConfig(arguments json.RawMessage) (string, error) {
 	if len(params.Listen) == 0 {
 		params.Listen = []string{":443"}
 	}
-	if len(params.ServerName) == 0 {
-		params.ServerName = []string{"example.org"}
+	if len(params.ServerName) == 0 || (len(params.ServerName) == 1 && params.ServerName[0] == "*") {
+		// Fix: don't use * as server name, use example.org if not provided or invalid
+		if len(params.ServerName) == 0 {
+			params.ServerName = []string{"example.org"}
+		}
 	}
 	if params.ForwardPolicy == "" {
 		params.ForwardPolicy = "proxy_pass"
@@ -66,13 +69,22 @@ func GenerateHTTPConfig(arguments json.RawMessage) (string, error) {
 		if params.AuthTable == "" {
 			params.AuthTable = "auth_user.csv"
 		}
-		cfg = templates.SimpleTunnelConfig(
-			"server",
+		// 使用 TunnelServerTemplate 生成配置
+		tunnelConfig := templates.TunnelServerTemplate(
 			params.Listen,
 			params.ServerName,
 			params.AuthTable,
-			nil, "", "", "",
+			[]string{"127.0.0.1", "240.0.0.0/8"},
 		)
+
+		cfg = config.Config{
+			Global: config.NewDefaultGlobalConfig(),
+			Dialer: map[string]string{
+				"local": "local",
+			},
+			Https: []config.HTTPConfig{tunnelConfig},
+		}
+
 	} else {
 		// 生成普通HTTP转发配置
 		httpConfig := templates.HTTPForwardTemplate(params.Listen, params.ServerName, params.Dialer, true)

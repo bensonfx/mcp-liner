@@ -5,236 +5,264 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// GlobalConfig 全局配置结构
+// GlobalConfig 全局配置结构，完全对应 liner/config.go Config.Global
 type GlobalConfig struct {
-	LogDir           string `json:"log_dir,omitempty" yaml:"log_dir,omitempty"`
-	LogLevel         string `json:"log_level,omitempty" yaml:"log_level,omitempty"`
-	LogBackups       int    `json:"log_backups,omitempty" yaml:"log_backups,omitempty"`
-	LogMaxsize       int64  `json:"log_maxsize,omitempty" yaml:"log_maxsize,omitempty"`
-	LogLocaltime     bool   `json:"log_localtime,omitempty" yaml:"log_localtime,omitempty"`
-	LogChannelSize   uint   `json:"log_channel_size,omitempty" yaml:"log_channel_size,omitempty"`
-	ForbidLocalAddr  bool   `json:"forbid_local_addr,omitempty" yaml:"forbid_local_addr,omitempty"`
-	DialTimeout      int    `json:"dial_timeout,omitempty" yaml:"dial_timeout,omitempty"`
-	DialReadBuffer   int    `json:"dial_read_buffer,omitempty" yaml:"dial_read_buffer,omitempty"`
-	DialWriteBuffer  int    `json:"dial_write_buffer,omitempty" yaml:"dial_write_buffer,omitempty"`
-	DnsServer        string `json:"dns_server,omitempty" yaml:"dns_server,omitempty"`
-	DnsCacheDuration string `json:"dns_cache_duration,omitempty" yaml:"dns_cache_duration,omitempty"`
-	DnsCacheSize     int    `json:"dns_cache_size,omitempty" yaml:"dns_cache_size,omitempty"`
-	TcpReadBuffer    int    `json:"tcp_read_buffer,omitempty" yaml:"tcp_read_buffer,omitempty"`
-	TcpWriteBuffer   int    `json:"tcp_write_buffer,omitempty" yaml:"tcp_write_buffer,omitempty"`
-	TlsInsecure      bool   `json:"tls_insecure,omitempty" yaml:"tls_insecure,omitempty"`
-	AutocertDir      string `json:"autocert_dir,omitempty" yaml:"autocert_dir,omitempty"`
-	GeoipDir         string `json:"geoip_dir,omitempty" yaml:"geoip_dir,omitempty"`
-	GeoipCacheSize   int    `json:"geoip_cache_size,omitempty" yaml:"geoip_cache_size,omitempty"`
-	GeositeDisabled  bool   `json:"geosite_disabled,omitempty" yaml:"geosite_disabled,omitempty"`
-	GeositeCacheSize int    `json:"geosite_cache_size,omitempty" yaml:"geosite_cache_size,omitempty"`
-	IdleConnTimeout  int    `json:"idle_conn_timeout,omitempty" yaml:"idle_conn_timeout,omitempty"`
-	MaxIdleConns     int    `json:"max_idle_conns,omitempty" yaml:"max_idle_conns,omitempty"`
-	DisableHttp3     bool   `json:"disable_http3,omitempty" yaml:"disable_http3,omitempty"`
-	SetProcessName   string `json:"set_process_name,omitempty" yaml:"set_process_name,omitempty"`
+	LogDir           string `json:"log_dir" yaml:"log_dir"`
+	LogLevel         string `json:"log_level" yaml:"log_level"`
+	LogBackups       int    `json:"log_backups" yaml:"log_backups"`
+	LogMaxsize       int64  `json:"log_maxsize" yaml:"log_maxsize"`
+	LogLocaltime     bool   `json:"log_localtime" yaml:"log_localtime"`
+	LogChannelSize   uint   `json:"log_channel_size" yaml:"log_channel_size"`
+	ForbidLocalAddr  bool   `json:"forbid_local_addr" yaml:"forbid_local_addr"`
+	DialTimeout      int    `json:"dial_timeout" yaml:"dial_timeout"`
+	DialReadBuffer   int    `json:"dial_read_buffer" yaml:"dial_read_buffer"` // Danger, see https://issues.apache.org/jira/browse/KAFKA-16496
+	DialWriteBuffer  int    `json:"dial_write_buffer" yaml:"dial_write_buffer"`
+	DnsServer        string `json:"dns_server" yaml:"dns_server"`
+	DnsCacheDuration string `json:"dns_cache_duration" yaml:"dns_cache_duration"`
+	DnsCacheSize     int    `json:"dns_cache_size" yaml:"dns_cache_size"`
+	TcpReadBuffer    int    `json:"tcp_read_buffer" yaml:"tcp_read_buffer"`
+	TcpWriteBuffer   int    `json:"tcp_write_buffer" yaml:"tcp_write_buffer"`
+	TlsInsecure      bool   `json:"tls_insecure" yaml:"tls_insecure"`
+	AutocertDir      string `json:"autocert_dir" yaml:"autocert_dir"`
+	GeoipDir         string `json:"geoip_dir" yaml:"geoip_dir"`
+	GeoipCacheSize   int    `json:"geoip_cache_size" yaml:"geoip_cache_size"`
+	GeositeDisabled  bool   `json:"geosite_disabled" yaml:"geosite_disabled"`
+	GeositeCacheSize int    `json:"geosite_cache_size" yaml:"geosite_cache_size"`
+	IdleConnTimeout  int    `json:"idle_conn_timeout" yaml:"idle_conn_timeout"`
+	MaxIdleConns     int    `json:"max_idle_conns" yaml:"max_idle_conns"`
+	DisableHttp3     bool   `json:"disable_http3" yaml:"disable_http3"`
+	SetProcessName   string `json:"set_process_name" yaml:"set_process_name"`
 }
 
-// HTTPForwardConfig HTTP转发配置
+// HTTPForwardConfig HTTP转发配置，对应 liner/config.go HTTPConfig.Forward
 type HTTPForwardConfig struct {
-	Policy           string `json:"policy,omitempty" yaml:"policy,omitempty"`
-	AuthTable        string `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
-	Dialer           string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	TcpCongestion    string `json:"tcp_congestion,omitempty" yaml:"tcp_congestion,omitempty"`
-	DenyDomainsTable string `json:"deny_domains_table,omitempty" yaml:"deny_domains_table,omitempty"`
-	SpeedLimit       int64  `json:"speed_limit,omitempty" yaml:"speed_limit,omitempty"`
-	DisableIpv6      bool   `json:"disable_ipv6,omitempty" yaml:"disable_ipv6,omitempty"`
-	PreferIpv6       bool   `json:"prefer_ipv6,omitempty" yaml:"prefer_ipv6,omitempty"`
-	Log              bool   `json:"log,omitempty" yaml:"log,omitempty"`
-	LogInterval      int64  `json:"log_interval,omitempty" yaml:"log_interval,omitempty"`
-	IoCopyBuffer     int    `json:"io_copy_buffer,omitempty" yaml:"io_copy_buffer,omitempty"`
-	IdleTimeout      int64  `json:"idle_timeout,omitempty" yaml:"idle_timeout,omitempty"`
+	Policy           string `json:"policy" yaml:"policy"`
+	AuthTable        string `json:"auth_table" yaml:"auth_table"`
+	Dialer           string `json:"dialer" yaml:"dialer"`
+	TcpCongestion    string `json:"tcp_congestion" yaml:"tcp_congestion"`
+	DenyDomainsTable string `json:"deny_domains_table" yaml:"deny_domains_table"`
+	SpeedLimit       int64  `json:"speed_limit" yaml:"speed_limit"`
+	DisableIpv6      bool   `json:"disable_ipv6" yaml:"disable_ipv6"`
+	PreferIpv6       bool   `json:"prefer_ipv6" yaml:"prefer_ipv6"`
+	Log              bool   `json:"log" yaml:"log"`
+	LogInterval      int64  `json:"log_interval" yaml:"log_interval"`
+	IoCopyBuffer     int    `json:"io_copy_buffer" yaml:"io_copy_buffer"`
+	IdleTimeout      int64  `json:"idle_timeout" yaml:"idle_timeout"`
 }
 
-// HTTPTunnelConfig HTTP隧道配置
+// HTTPTunnelConfig HTTP隧道配置，对应 liner/config.go HTTPConfig.Tunnel
 type HTTPTunnelConfig struct {
-	Enabled         bool     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	AuthTable       string   `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
-	AllowListens    []string `json:"allow_listens,omitempty" yaml:"allow_listens,omitempty"`
-	SpeedLimit      int64    `json:"speed_limit,omitempty" yaml:"speed_limit,omitempty"`
-	EnableKeepAlive bool     `json:"enable_keep_alive,omitempty" yaml:"enable_keep_alive,omitempty"`
-	Log             bool     `json:"log,omitempty" yaml:"log,omitempty"`
+	Enabled         bool     `json:"enabled" yaml:"enabled"`
+	AuthTable       string   `json:"auth_table" yaml:"auth_table"`
+	AllowListens    []string `json:"allow_listens" yaml:"allow_listens"`
+	SpeedLimit      int64    `json:"speed_limit" yaml:"speed_limit"`
+	EnableKeepAlive bool     `json:"enable_keep_alive" yaml:"enable_keep_alive"`
+	Log             bool     `json:"log" yaml:"log"`
 }
 
 // HTTPWebIndexConfig Web Index配置
 type HTTPWebIndexConfig struct {
-	Root    string `json:"root,omitempty" yaml:"root,omitempty"`
-	Headers string `json:"headers,omitempty" yaml:"headers,omitempty"`
-	Charset string `json:"charset,omitempty" yaml:"charset,omitempty"`
-	Body    string `json:"body,omitempty" yaml:"body,omitempty"`
-	File    string `json:"file,omitempty" yaml:"file,omitempty"`
+	Root    string `json:"root" yaml:"root"`
+	Headers string `json:"headers" yaml:"headers"`
+	Charset string `json:"charset" yaml:"charset"`
+	Body    string `json:"body" yaml:"body"`
+	File    string `json:"file" yaml:"file"`
 }
 
 // HTTPWebProxyConfig Web Proxy配置
 type HTTPWebProxyConfig struct {
-	Pass        string `json:"pass,omitempty" yaml:"pass,omitempty"`
-	AuthTable   string `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
-	StripPrefix string `json:"strip_prefix,omitempty" yaml:"strip_prefix,omitempty"`
-	SetHeaders  string `json:"set_headers,omitempty" yaml:"set_headers,omitempty"`
-	DumpFailure bool   `json:"dump_failure,omitempty" yaml:"dump_failure,omitempty"`
+	Pass        string `json:"pass" yaml:"pass"`
+	AuthTable   string `json:"auth_table" yaml:"auth_table"`
+	StripPrefix string `json:"strip_prefix" yaml:"strip_prefix"`
+	SetHeaders  string `json:"set_headers" yaml:"set_headers"`
+	DumpFailure bool   `json:"dump_failure" yaml:"dump_failure"`
 }
 
 // HTTPWebDohConfig Web DoH配置
 type HTTPWebDohConfig struct {
-	Enabled   bool   `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	Policy    string `json:"policy,omitempty" yaml:"policy,omitempty"`
-	ProxyPass string `json:"proxy_pass,omitempty" yaml:"proxy_pass,omitempty"`
-	CacheSize int    `json:"cache_size,omitempty" yaml:"cache_size,omitempty"`
+	Enabled   bool   `json:"enabled" yaml:"enabled"`
+	Policy    string `json:"policy" yaml:"policy"`
+	ProxyPass string `json:"proxy_pass" yaml:"proxy_pass"`
+	CacheSize int    `json:"cache_size" yaml:"cache_size"`
 }
 
 // HTTPWebFastcgiConfig FastCGI配置
 type HTTPWebFastcgiConfig struct {
-	Enabled    bool   `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	Root       string `json:"root,omitempty" yaml:"root,omitempty"`
-	DefaultAPP string `json:"default_app,omitempty" yaml:"default_app,omitempty"`
+	Enabled    bool   `json:"enabled" yaml:"enabled"`
+	Root       string `json:"root" yaml:"root"`
+	DefaultAPP string `json:"default_app" yaml:"default_app"`
 }
 
 // HTTPWebDavConfig WebDAV配置
 type HTTPWebDavConfig struct {
-	Enabled   bool   `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	Root      string `json:"root,omitempty" yaml:"root,omitempty"`
-	AuthTable string `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
+	Enabled   bool   `json:"enabled" yaml:"enabled"`
+	Root      string `json:"root" yaml:"root"`
+	AuthTable string `json:"auth_table" yaml:"auth_table"`
 }
 
 // HTTPWebShellConfig Web Shell配置
 type HTTPWebShellConfig struct {
-	Enabled   bool              `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	AuthTable string            `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
-	Command   string            `json:"command,omitempty" yaml:"command,omitempty"`
-	Home      string            `json:"home,omitempty" yaml:"home,omitempty"`
-	Template  map[string]string `json:"template,omitempty" yaml:"template,omitempty"`
+	Enabled   bool              `json:"enabled" yaml:"enabled"`
+	AuthTable string            `json:"auth_table" yaml:"auth_table"`
+	Command   string            `json:"command" yaml:"command"`
+	Home      string            `json:"home" yaml:"home"`
+	Template  map[string]string `json:"template" yaml:"template"`
 }
 
-// HTTPWebConfig Web配置
+// HTTPWebConfig 对应 liner/config.go HTTPConfig.Web
 type HTTPWebConfig struct {
-	Location      string               `json:"location,omitempty" yaml:"location,omitempty"`
-	TcpCongestion string               `json:"tcp_congestion,omitempty" yaml:"tcp_congestion,omitempty"`
-	Fastcgi       HTTPWebFastcgiConfig `json:"fastcgi,omitempty" yaml:"fastcgi,omitempty"`
-	Dav           HTTPWebDavConfig     `json:"dav,omitempty" yaml:"dav,omitempty"`
-	Index         HTTPWebIndexConfig   `json:"index,omitempty" yaml:"index,omitempty"`
-	Proxy         HTTPWebProxyConfig   `json:"proxy,omitempty" yaml:"proxy,omitempty"`
-	Shell         HTTPWebShellConfig   `json:"shell,omitempty" yaml:"shell,omitempty"`
-	Doh           HTTPWebDohConfig     `json:"doh,omitempty" yaml:"doh,omitempty"`
+	Location      string               `json:"location" yaml:"location"`
+	TcpCongestion string               `json:"tcp_congestion" yaml:"tcp_congestion"`
+	Fastcgi       HTTPWebFastcgiConfig `json:"fastcgi" yaml:"fastcgi"`
+	Dav           HTTPWebDavConfig     `json:"dav" yaml:"dav"`
+	Doh           HTTPWebDohConfig     `json:"doh" yaml:"doh"`
+	Index         HTTPWebIndexConfig   `json:"index" yaml:"index"`
+	Proxy         HTTPWebProxyConfig   `json:"proxy" yaml:"proxy"`
+	Shell         HTTPWebShellConfig   `json:"shell" yaml:"shell"`
 }
 
-// HTTPConfig HTTP/HTTPS配置
+// ServerConfig 对应 liner/config.go HTTPConfig.ServerConfig 中的值
+type ServerConfig struct {
+	Keyfile        string `json:"keyfile" yaml:"keyfile"`
+	Certfile       string `json:"certfile" yaml:"certfile"`
+	DisableHttp2   bool   `json:"disable_http2" yaml:"disable_http2"`
+	DisableHttp3   bool   `json:"disable_http3" yaml:"disable_http3"`
+	DisableTls11   bool   `json:"disable_tls11" yaml:"disable_tls11"`
+	DisableOcsp    bool   `json:"disable_ocsp" yaml:"disable_ocsp"`
+	PreferChacha20 bool   `json:"prefer_chacha20" yaml:"prefer_chacha20"`
+}
+
+// HTTPConfig HTTP/HTTPS配置，对应 liner/config.go HTTPConfig
 type HTTPConfig struct {
-	Listen       []string `json:"listen,omitempty" yaml:"listen,omitempty"`
-	ServerName   []string `json:"server_name,omitempty" yaml:"server_name,omitempty"`
-	Keyfile      string   `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
-	Certfile     string   `json:"certfile,omitempty" yaml:"certfile,omitempty"`
-	PSK          string   `json:"psk,omitempty" yaml:"psk,omitempty"`
-	ServerConfig map[string]struct {
-		Keyfile        string `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
-		Certfile       string `json:"certfile,omitempty" yaml:"certfile,omitempty"`
-		DisableHttp2   bool   `json:"disable_http2,omitempty" yaml:"disable_http2,omitempty"`
-		DisableHttp3   bool   `json:"disable_http3,omitempty" yaml:"disable_http3,omitempty"`
-		DisableTls11   bool   `json:"disable_tls11,omitempty" yaml:"disable_tls11,omitempty"`
-		DisableOcsp    bool   `json:"disable_ocsp,omitempty" yaml:"disable_ocsp,omitempty"`
-		PreferChacha20 bool   `json:"prefer_chacha20,omitempty" yaml:"prefer_chacha20,omitempty"`
-	} `json:"server_config,omitempty" yaml:"server_config,omitempty"`
-	Forward HTTPForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
-	Tunnel  HTTPTunnelConfig  `json:"tunnel,omitempty" yaml:"tunnel,omitempty"`
-	Web     []HTTPWebConfig   `json:"web,omitempty" yaml:"web,omitempty"`
+	Listen       []string                `json:"listen" yaml:"listen"`
+	ServerName   []string                `json:"server_name" yaml:"server_name"`
+	Keyfile      string                  `json:"keyfile" yaml:"keyfile"`
+	Certfile     string                  `json:"certfile" yaml:"certfile"`
+	PSK          string                  `json:"psk" yaml:"psk"`
+	ServerConfig map[string]ServerConfig `json:"server_config" yaml:"server_config"`
+	Forward      HTTPForwardConfig       `json:"forward" yaml:"forward"`
+	Tunnel       HTTPTunnelConfig        `json:"tunnel" yaml:"tunnel"`
+	Web          []HTTPWebConfig         `json:"web" yaml:"web"`
 }
 
-// TunnelConfig 隧道配置
+// TunnelConfig 隧道配置，对应 liner/config.go TunnelConfig
 type TunnelConfig struct {
-	RemoteListen    []string `json:"remote_listen,omitempty" yaml:"remote_listen,omitempty"`
-	ProxyPass       string   `json:"proxy_pass,omitempty" yaml:"proxy_pass,omitempty"`
-	Resolver        string   `json:"resolver,omitempty" yaml:"resolver,omitempty"`
-	DialTimeout     int      `json:"dial_timeout,omitempty" yaml:"dial_timeout,omitempty"`
-	Dialer          string   `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	SpeedLimit      int64    `json:"speed_limit,omitempty" yaml:"speed_limit,omitempty"`
-	EnableKeepAlive bool     `json:"enable_keep_alive,omitempty" yaml:"enable_keep_alive,omitempty"`
-	Log             bool     `json:"log,omitempty" yaml:"log,omitempty"`
+	RemoteListen    []string `json:"remote_listen" yaml:"remote_listen"`
+	ProxyPass       string   `json:"proxy_pass" yaml:"proxy_pass"`
+	Resolver        string   `json:"resolver" yaml:"resolver"`
+	DialTimeout     int      `json:"dial_timeout" yaml:"dial_timeout"`
+	Dialer          string   `json:"dialer" yaml:"dialer"`
+	SpeedLimit      int64    `json:"speed_limit" yaml:"speed_limit"`
+	EnableKeepAlive bool     `json:"enable_keep_alive" yaml:"enable_keep_alive"`
+	Log             bool     `json:"log" yaml:"log"`
 }
 
-// DnsConfig DNS配置
+// DnsConfig DNS配置，对应 liner/config.go DnsConfig
 type DnsConfig struct {
-	Listen    []string `json:"listen,omitempty" yaml:"listen,omitempty"`
-	Keyfile   string   `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
-	Policy    string   `json:"policy,omitempty" yaml:"policy,omitempty"`
-	ProxyPass string   `json:"proxy_pass,omitempty" yaml:"proxy_pass,omitempty"`
-	CacheSize int      `json:"cache_size,omitempty" yaml:"cache_size,omitempty"`
-	Log       bool     `json:"log,omitempty" yaml:"log,omitempty"`
+	Listen    []string `json:"listen" yaml:"listen"`
+	Keyfile   string   `json:"keyfile" yaml:"keyfile"`
+	Policy    string   `json:"policy" yaml:"policy"`
+	ProxyPass string   `json:"proxy_pass" yaml:"proxy_pass"`
+	CacheSize int      `json:"cache_size" yaml:"cache_size"`
+	Log       bool     `json:"log" yaml:"log"`
 }
 
 // SocksForwardConfig Socks转发配置
 type SocksForwardConfig struct {
-	Policy           string `json:"policy,omitempty" yaml:"policy,omitempty"`
-	AuthTable        string `json:"auth_table,omitempty" yaml:"auth_table,omitempty"`
-	Dialer           string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	DenyDomainsTable string `json:"deny_domains_table,omitempty" yaml:"deny_domains_table,omitempty"`
-	SpeedLimit       int64  `json:"speed_limit,omitempty" yaml:"speed_limit,omitempty"`
-	DisableIpv6      bool   `json:"disable_ipv6,omitempty" yaml:"disable_ipv6,omitempty"`
-	PreferIpv6       bool   `json:"prefer_ipv6,omitempty" yaml:"prefer_ipv6,omitempty"`
-	Log              bool   `json:"log,omitempty" yaml:"log,omitempty"`
+	Policy           string `json:"policy" yaml:"policy"`
+	AuthTable        string `json:"auth_table" yaml:"auth_table"`
+	Dialer           string `json:"dialer" yaml:"dialer"`
+	DenyDomainsTable string `json:"deny_domains_table" yaml:"deny_domains_table"`
+	SpeedLimit       int64  `json:"speed_limit" yaml:"speed_limit"`
+	DisableIpv6      bool   `json:"disable_ipv6" yaml:"disable_ipv6"`
+	PreferIpv6       bool   `json:"prefer_ipv6" yaml:"prefer_ipv6"`
+	Log              bool   `json:"log" yaml:"log"`
 }
 
-// SocksConfig Socks代理配置
+// SocksConfig Socks代理配置，对应 liner/config.go SocksConfig
 type SocksConfig struct {
-	Listen  []string           `json:"listen,omitempty" yaml:"listen,omitempty"`
-	PSK     string             `json:"psk,omitempty" yaml:"psk,omitempty"`
-	Forward SocksForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
+	Listen  []string           `json:"listen" yaml:"listen"`
+	PSK     string             `json:"psk" yaml:"psk"`
+	Forward SocksForwardConfig `json:"forward" yaml:"forward"`
 }
 
 // SniForwardConfig SNI转发配置
 type SniForwardConfig struct {
-	Policy      string `json:"policy,omitempty" yaml:"policy,omitempty"`
-	Dialer      string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	DisableIpv6 bool   `json:"disable_ipv6,omitempty" yaml:"disable_ipv6,omitempty"`
-	PreferIpv6  bool   `json:"prefer_ipv6,omitempty" yaml:"prefer_ipv6,omitempty"`
-	Log         bool   `json:"log,omitempty" yaml:"log,omitempty"`
+	Policy      string `json:"policy" yaml:"policy"`
+	Dialer      string `json:"dialer" yaml:"dialer"`
+	DisableIpv6 bool   `json:"disable_ipv6" yaml:"disable_ipv6"`
+	PreferIpv6  bool   `json:"prefer_ipv6" yaml:"prefer_ipv6"`
+	Log         bool   `json:"log" yaml:"log"`
 }
 
-// SniConfig SNI配置
+// SniConfig SNI配置 (对应 liner/config.go SniConfig)
 type SniConfig struct {
-	Enabled bool             `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	Forward SniForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
+	Enabled bool             `json:"enabled" yaml:"enabled"`
+	Forward SniForwardConfig `json:"forward" yaml:"forward"`
 }
 
 // RedsocksForwardConfig Redsocks转发配置
 type RedsocksForwardConfig struct {
-	Dialer string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	Log    bool   `json:"log,omitempty" yaml:"log,omitempty"`
+	Dialer string `json:"dialer" yaml:"dialer"`
+	Log    bool   `json:"log" yaml:"log"`
 }
 
-// RedsocksConfig Redsocks透明代理配置
+// RedsocksConfig Redsocks配置 (对应 liner/config.go RedsocksConfig)
 type RedsocksConfig struct {
-	Listen  []string              `json:"listen,omitempty" yaml:"listen,omitempty"`
-	Forward RedsocksForwardConfig `json:"forward,omitempty" yaml:"forward,omitempty"`
+	Listen  []string              `json:"listen" yaml:"listen"`
+	Forward RedsocksForwardConfig `json:"forward" yaml:"forward"`
 }
 
-// StreamConfig 流转发配置
+// StreamConfig 流转发配置 (对应 liner/config.go StreamConfig)
 type StreamConfig struct {
-	Listen        []string `json:"listen,omitempty" yaml:"listen,omitempty"`
-	Keyfile       string   `json:"keyfile,omitempty" yaml:"keyfile,omitempty"`
-	Certfile      string   `json:"certfile,omitempty" yaml:"certfile,omitempty"`
-	ProxyPass     string   `json:"proxy_pass,omitempty" yaml:"proxy_pass,omitempty"`
-	ProxyProtocol uint     `json:"proxy_protocol,omitempty" yaml:"proxy_protocol,omitempty"`
-	DialTimeout   int      `json:"dial_timeout,omitempty" yaml:"dial_timeout,omitempty"`
-	Dialer        string   `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	SpeedLimit    int64    `json:"speed_limit,omitempty" yaml:"speed_limit,omitempty"`
-	Log           bool     `json:"log,omitempty" yaml:"log,omitempty"`
+	Listen        []string `json:"listen" yaml:"listen"`
+	Keyfile       string   `json:"keyfile" yaml:"keyfile"`
+	Certfile      string   `json:"certfile" yaml:"certfile"`
+	ProxyPass     string   `json:"proxy_pass" yaml:"proxy_pass"`
+	ProxyProtocol uint     `json:"proxy_protocol" yaml:"proxy_protocol"`
+	DialTimeout   int      `json:"dial_timeout" yaml:"dial_timeout"`
+	Dialer        string   `json:"dialer" yaml:"dialer"`
+	SpeedLimit    int64    `json:"speed_limit" yaml:"speed_limit"`
+	Log           bool     `json:"log" yaml:"log"`
 }
 
-// Config liner完整配置
+// SshConfig SSH配置 (对应 liner/config.go SshConfig)
+type SshConfig struct {
+	Listen           []string `json:"listen" yaml:"listen"`
+	ServerVersion    string   `json:"server_version" yaml:"server_version"`
+	TcpReadBuffer    int      `json:"tcp_read_buffer" yaml:"tcp_read_buffer"`
+	TcpWriteBuffer   int      `json:"tcp_write_buffer" yaml:"tcp_write_buffer"`
+	DisableKeepalive bool     `json:"disable_keepalive" yaml:"disable_keepalive"`
+	BannerFile       string   `json:"banner_file" yaml:"banner_file"`
+	HostKey          string   `json:"host_key" yaml:"host_key"`
+	AuthTable        string   `json:"auth_table" yaml:"auth_table"`
+	AuthorizedKeys   string   `json:"authorized_keys" yaml:"authorized_keys"`
+	Shell            string   `json:"shell" yaml:"shell"`
+	Home             string   `json:"home" yaml:"home"`
+	EnvFile          string   `json:"env_file" yaml:"env_file"`
+	Log              bool     `json:"log" yaml:"log"`
+}
+
+// CronConfig (对应 liner/config.go Config.Cron)
+type CronConfig struct {
+	Spec    string `json:"spec" yaml:"spec"`
+	Command string `json:"command" yaml:"command"`
+}
+
+// Config liner完整配置结构，对应 liner/config.go Config
 type Config struct {
-	Global   GlobalConfig      `json:"global,omitempty" yaml:"global,omitempty"`
-	Dialer   map[string]string `json:"dialer,omitempty" yaml:"dialer,omitempty"`
-	Sni      SniConfig         `json:"sni,omitempty" yaml:"sni,omitempty"`
-	Https    []HTTPConfig      `json:"https,omitempty" yaml:"https,omitempty"`
-	Http     []HTTPConfig      `json:"http,omitempty" yaml:"http,omitempty"`
-	Tunnel   []TunnelConfig    `json:"tunnel,omitempty" yaml:"tunnel,omitempty"`
-	Dns      []DnsConfig       `json:"dns,omitempty" yaml:"dns,omitempty"`
-	Socks    []SocksConfig     `json:"socks,omitempty" yaml:"socks,omitempty"`
-	Redsocks []RedsocksConfig  `json:"redsocks,omitempty" yaml:"redsocks,omitempty"`
-	Stream   []StreamConfig    `json:"stream,omitempty" yaml:"stream,omitempty"`
+	Global   GlobalConfig      `json:"global" yaml:"global"`
+	Cron     []CronConfig      `json:"cron" yaml:"cron"`
+	Dialer   map[string]string `json:"dialer" yaml:"dialer"`
+	Sni      SniConfig         `json:"sni" yaml:"sni"`
+	Https    []HTTPConfig      `json:"https" yaml:"https"`
+	Http     []HTTPConfig      `json:"http" yaml:"http"`
+	Socks    []SocksConfig     `json:"socks" yaml:"socks"`
+	Redsocks []RedsocksConfig  `json:"redsocks" yaml:"redsocks"`
+	Tunnel   []TunnelConfig    `json:"tunnel" yaml:"tunnel"`
+	Stream   []StreamConfig    `json:"stream" yaml:"stream"`
+	Ssh      []SshConfig       `json:"ssh" yaml:"ssh"`
+	Dns      []DnsConfig       `json:"dns" yaml:"dns"`
 }
 
 // NewDefaultGlobalConfig 创建默认全局配置
@@ -250,7 +278,6 @@ func NewDefaultGlobalConfig() GlobalConfig {
 		DnsCacheDuration: "15m",
 		DnsCacheSize:     524288,
 		DnsServer:        "https://8.8.8.8/dns-query",
-		SetProcessName:   "/lib/systemd/systemd-timesyncd",
 	}
 }
 

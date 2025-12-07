@@ -302,7 +302,7 @@ func SimpleTunnelConfig(
 	if role == "server" {
 		// 服务端配置
 		cfg.Https = []config.HTTPConfig{
-			TunnelServerTemplate(listen, serverName, authTable, []string{"127.0.0.1"}),
+			TunnelServerTemplate(listen, serverName, authTable, []string{"127.0.0.1", "240.0.0.0/8"}),
 		}
 	} else if role == "client" {
 		// 客户端配置

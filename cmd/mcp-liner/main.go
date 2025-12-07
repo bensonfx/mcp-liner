@@ -171,6 +171,18 @@ func runServer(cmd *cobra.Command, args []string) {
 		Description: "生成 Web Shell 配置，支持通过浏览器访问终端，可配置命令和认证",
 	}, wrapToolHandler(tools.GenerateWebshellConfig))
 
+	// 15. generate_auth_user_config - 生成用户认证配置
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_auth_user_config",
+		Description: "生成 auth_user.csv 用户认证配置，包含用户名、密码和权限设置",
+	}, wrapToolHandler(tools.GenerateAuthUserConfig))
+
+	// 16. generate_ssh_config - 生成 SSH Server 配置
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generate_ssh_config",
+		Description: "生成 SSH Server 配置，支持端口转发、Shell访问和密钥认证",
+	}, wrapToolHandler(tools.GenerateSSHConfig))
+
 	// 创建一个可以被信号取消的 context
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
