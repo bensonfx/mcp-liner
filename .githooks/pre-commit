@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Pre-commit hook to lint and fix Go and Python code
+# Checks for 'gofmt', 'golangci-lint', 'uv'
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+echo "🪝 Running pre-commit hook..."
+
+# Define required tools
+REQUIRED_TOOLS=("gofmt" "golangci-lint" "uv")
+MISSING_TOOLS=0
+
+for tool in "${REQUIRED_TOOLS[@]}"; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        echo -e "${RED}Error: Required tool '$tool' is not installed or not in PATH.${NC}"
+        MISSING_TOOLS=1
+    fi
+done
+
+if [ $MISSING_TOOLS -ne 0 ]; then
+    echo -e "${RED}Please install the missing tools to run checks.${NC}"
+    exit 1
+fi
+
+STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep ".go$")
+STAGED_PY_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep ".py$")
+
+FAIL=0
+
+# --- Go Linting ---
+if [ -n "$STAGED_GO_FILES" ]; then
+    echo -e "${YELLOW}Running Go format and lint...${NC}"
+
+    # 1. gofmt
+    echo "  > Running gofmt..."
+    if ! gofmt -w .; then
+        echo -e "${RED}gofmt failed${NC}"
+        FAIL=1
+    fi
+
+    # 2. golangci-lint
+    echo "  > Running golangci-lint..."
+    if ! golangci-lint run --fix; then
+        echo -e "${RED}golangci-lint found issues that could not be automatically fixed${NC}"
+        FAIL=1
+    fi
+fi
+
+# --- Python Linting ---
+if [ -n "$STAGED_PY_FILES" ]; then
+    echo -e "${YELLOW}Running Python lint and format...${NC}"
+
+    # 1. Ruff check (fix)
+    echo "  > Running ruff check --fix..."
+    if ! uvx ruff check --fix .; then
+         echo -e "${RED}ruff check failed${NC}"
+         FAIL=1
+    fi
+
+    # 2. Ruff format
+    echo "  > Running ruff format..."
+    if ! uvx ruff format .; then
+         echo -e "${RED}ruff format failed${NC}"
+         FAIL=1
+    fi
+fi
+
+# Check if any tracked files were modified by the linters/formatters
+# We only care about files that are part of the git repo.
+# If files changed, we fail the commit so the user can review and stage them.
+MODIFIED_FILES=$(git diff --name-only)
+if [ -n "$MODIFIED_FILES" ]; then
+    echo -e "${YELLOW}⚠️  Some files were modified by linters/formatters:${NC}"
+    echo "$MODIFIED_FILES"
+    echo -e "${RED}Please review the changes, stage them (git add), and try committing again.${NC}"
+    exit 1
+fi
+
+if [ $FAIL -eq 0 ]; then
+    echo -e "${GREEN}✅ All checks passed!${NC}"
+    exit 0
+else
+    echo -e "${RED}❌ Checks failed.${NC}"
+    exit 1
+fi
