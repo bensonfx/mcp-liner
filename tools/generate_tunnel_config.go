@@ -96,7 +96,6 @@ func GenerateTunnelConfig(arguments json.RawMessage) (string, error) {
 		)
 
 		dialers := make(map[string]string)
-		dialers["local"] = "local"
 		if params.DialerURL != "" {
 			dialers[params.Dialer] = params.DialerURL
 		}

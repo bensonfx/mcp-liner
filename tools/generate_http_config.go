@@ -79,10 +79,8 @@ func GenerateHTTPConfig(arguments json.RawMessage) (string, error) {
 
 		cfg = config.Config{
 			Global: config.NewDefaultGlobalConfig(),
-			Dialer: map[string]string{
-				"local": "local",
-			},
-			Https: []config.HTTPConfig{tunnelConfig},
+			Dialer: map[string]string{},
+			Https:  []config.HTTPConfig{tunnelConfig},
 		}
 
 	} else {
@@ -93,10 +91,8 @@ func GenerateHTTPConfig(arguments json.RawMessage) (string, error) {
 
 		cfg = config.Config{
 			Global: config.NewDefaultGlobalConfig(),
-			Dialer: map[string]string{
-				"local": "local",
-			},
-			Https: []config.HTTPConfig{httpConfig},
+			Dialer: map[string]string{},
+			Https:  []config.HTTPConfig{httpConfig},
 		}
 
 		// 如果提供了dialer URL，添加到配置

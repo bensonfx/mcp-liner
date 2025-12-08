@@ -69,8 +69,7 @@ go build -o build/mcp-liner ./cmd/mcp-liner
   "template": "http_forward|tunnel_server|tunnel_client|dns|full",
   "params": {
     "listen": [":443"],
-    "server_name": ["example.org"],
-    "dialer": "local"
+    "server_name": ["example.org"]
   }
 }
 ```

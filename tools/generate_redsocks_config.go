@@ -45,9 +45,7 @@ func GenerateRedsocksConfig(arguments json.RawMessage) (string, error) {
 	// 构建配置
 	cfg := config.Config{
 		Global: config.NewDefaultGlobalConfig(),
-		Dialer: map[string]string{
-			"local": "local",
-		},
+		Dialer: map[string]string{},
 		Redsocks: []config.RedsocksConfig{
 			{
 				Listen: params.Listen,

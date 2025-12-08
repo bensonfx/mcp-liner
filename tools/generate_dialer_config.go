@@ -86,6 +86,11 @@ func GenerateDialerConfig(arguments json.RawMessage) (string, error) {
 1. Add this dialer configuration to your liner config
 2. Reference it in http/tunnel configs using: dialer: %s
 
+IMPORTANT: The dialer value MUST be a single string URL (e.g., "socks5://..."), NOT a nested object.
+Valid format:
+dialer:
+  %s: "%s"
+
 Example HTTP config:
 https:
   - listen: [":443"]
@@ -94,7 +99,7 @@ https:
       policy: proxy_pass
       dialer: %s
       log: true
-`, params.Name, params.Name)
+`, params.Name, params.Name, dialerURL, params.Name)
 
 	log.Info().Str("dialer_name", params.Name).Msg("dialer config generated successfully")
 	return responses.ConfigWithExampleResponse(yamlContent, example)

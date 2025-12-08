@@ -152,9 +152,7 @@ func FullConfigTemplate() *config.Config {
 			IdleConnTimeout: 90,
 			MaxIdleConns:    100,
 		},
-		Dialer: map[string]string{
-			"local": "local",
-		},
+		Dialer: map[string]string{},
 		Https: []config.HTTPConfig{
 			{
 				Listen:     []string{":443"},
@@ -182,9 +180,7 @@ func FullConfigTemplate() *config.Config {
 func SimpleHTTPProxyTemplate(listen []string, dialer string) *config.Config {
 	return &config.Config{
 		Global: config.NewDefaultGlobalConfig(),
-		Dialer: map[string]string{
-			"local": "local",
-		},
+		Dialer: map[string]string{},
 		Http: []config.HTTPConfig{
 			{
 				Listen: listen,
@@ -203,9 +199,7 @@ func SimpleHTTPProxyTemplate(listen []string, dialer string) *config.Config {
 func TunnelScenarioTemplate(role string, params map[string]interface{}) *config.Config {
 	cfg := &config.Config{
 		Global: config.NewDefaultGlobalConfig(),
-		Dialer: map[string]string{
-			"local": "local",
-		},
+		Dialer: map[string]string{},
 	}
 
 	if role == "server" {
@@ -267,7 +261,6 @@ func SimpleHTTPForwardConfig(listen []string, serverName []string, dialerName st
 	global := config.NewDefaultGlobalConfig()
 
 	dialers := make(map[string]string)
-	dialers["local"] = "local"
 	if dialerName != "" && dialerName != "local" && dialerURL != "" {
 		dialers[dialerName] = dialerURL
 	}
@@ -307,7 +300,6 @@ func SimpleTunnelConfig(
 	} else if role == "client" {
 		// 客户端配置
 		dialers := make(map[string]string)
-		dialers["local"] = "local"
 		if dialerName != "" && dialerURL != "" {
 			dialers[dialerName] = dialerURL
 		}

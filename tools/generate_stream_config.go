@@ -61,9 +61,7 @@ func GenerateStreamConfig(arguments json.RawMessage) (string, error) {
 	// 构建配置
 	cfg := config.Config{
 		Global: config.NewDefaultGlobalConfig(),
-		Dialer: map[string]string{
-			"local": "local",
-		},
+		Dialer: map[string]string{},
 		Stream: []config.StreamConfig{
 			{
 				Listen:        params.Listen,

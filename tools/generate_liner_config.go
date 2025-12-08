@@ -143,9 +143,7 @@ func generateFullConfig(params map[string]interface{}) config.Config {
 
 	return config.Config{
 		Global: global,
-		Dialer: map[string]string{
-			"local": "local",
-		},
+		Dialer: map[string]string{},
 	}
 }
 
